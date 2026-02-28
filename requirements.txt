@@ -1,0 +1,6 @@
+Django==4.2.7
+psycopg2-binary==2.9.9
+python-decouple==3.8
+stripe==7.5.0
+Pillow==10.1.0
+coverage==7.3.2
