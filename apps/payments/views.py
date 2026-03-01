@@ -26,17 +26,13 @@ def create_payment(request):
     from django.shortcuts import redirect
 
     try:
-        # Данные для запроса к ЮKassa
         shop_id = settings.YOOKASSA_SHOP_ID
         secret_key = settings.YOOKASSA_SECRET_KEY
 
-        # Создаём уникальный ключ идемпотентности
         idempotence_key = str(uuid.uuid4())
 
-        # Формируем запрос к API ЮKassa
         url = "https://api.yookassa.ru/v3/payments"
 
-        # Данные платежа
         payment_data = {
             "amount": {
                 "value": "1000.00",
@@ -54,7 +50,6 @@ def create_payment(request):
             }
         }
 
-        # Отправляем запрос
         response = requests.post(
             url,
             json=payment_data,
@@ -68,11 +63,9 @@ def create_payment(request):
         result = response.json()
 
         if response.status_code == 200 or response.status_code == 201:
-            # Сохраняем ID платежа в сессии
             request.session['pending_payment_id'] = result['id']
             request.session['pending_payment_amount'] = 1000
 
-            # Сохраняем информацию о платеже в БД
             Payment.objects.create(
                 user=request.user,
                 yookassa_payment_intent_id=result['id'],
@@ -80,7 +73,6 @@ def create_payment(request):
                 status='pending'
             )
 
-            # ВОЗВРАЩАЕМ JSON ДЛЯ AJAX ЗАПРОСА
             return JsonResponse({
                 'success': True,
                 'payment_url': result['confirmation']['confirmation_url'],
@@ -106,7 +98,6 @@ def payment_success(request):
     from yookassa import Payment as YooPayment
     from django.conf import settings
 
-    # Настраиваем ЮKassa
     from yookassa import Configuration
     Configuration.account_id = settings.YOOKASSA_SHOP_ID
     Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
@@ -114,31 +105,24 @@ def payment_success(request):
     activated = False
     payment_info = None
 
-    # Получаем ID платежа из сессии
     payment_id = request.session.get('pending_payment_id')
 
     if payment_id:
         try:
-            # Проверяем статус платежа через API ЮKassa
             payment = YooPayment.find_one(payment_id)
             payment_info = payment
 
             if payment.status == 'succeeded':
-                # Платёж успешен
-
-                # Обновляем статус платежа в БД
                 Payment.objects.filter(
                     yookassa_payment_intent_id=payment_id,
                     user=request.user
                 ).update(status='succeeded')
 
-                # Активируем подписку пользователя
                 user = request.user
                 user.is_subscribed = True
                 user.subscription_expiry = timezone.now() + timedelta(days=30)
                 user.save()
 
-                # Создаём запись о подписке
                 Subscription.objects.update_or_create(
                     user=user,
                     defaults={
@@ -150,11 +134,9 @@ def payment_success(request):
 
                 activated = True
 
-                # Очищаем сессию
                 del request.session['pending_payment_id']
 
             elif payment.status == 'pending':
-                # Платёж ещё обрабатывается
                 return render(request, 'payments/success.html', {
                     'activated': False,
                     'pending': True,
@@ -180,15 +162,12 @@ def payment_cancel(request):
 def payment_webhook(request):
     """Webhook для уведомлений от ЮKassa"""
     try:
-        # Получаем данные из запроса
         data = json.loads(request.body)
 
-        # Проверяем событие
         if data.get('event') == 'payment.succeeded':
             payment = data.get('object', {})
             payment_id = payment.get('id')
 
-            # Находим платеж
             payment_obj = Payment.objects.filter(
                 yookassa_payment_intent_id=payment_id
             ).first()
@@ -197,13 +176,11 @@ def payment_webhook(request):
                 payment_obj.status = 'succeeded'
                 payment_obj.save()
 
-                # Активируем подписку
                 user = payment_obj.user
                 user.is_subscribed = True
                 user.subscription_expiry = timezone.now() + timedelta(days=30)
                 user.save()
 
-                # Создаём подписку
                 Subscription.objects.update_or_create(
                     user=user,
                     defaults={

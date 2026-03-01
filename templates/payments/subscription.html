@@ -46,7 +46,6 @@
 
 <script>
 function makePayment() {
-    // Показываем индикатор загрузки
     const button = event.target;
     const originalText = button.innerHTML;
     button.innerHTML = '⏳ Обработка...';
@@ -62,7 +61,6 @@ function makePayment() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Перенаправляем на страницу оплаты ЮKassa
             window.location.href = data.payment_url;
         } else {
             alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
