@@ -9,7 +9,8 @@ class UserRegistrationView(CreateView):
     model = User
     form_class = UserRegistrationForm
     template_name = 'accounts/register.html'
-    success_url = reverse_lazy('login')
+    # Изменяем 'login' на 'accounts:login'
+    success_url = reverse_lazy('accounts:login')  # Вот здесь исправление!
 
 
 class UserLoginView(LoginView):

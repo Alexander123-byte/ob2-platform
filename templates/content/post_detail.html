@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<article class="post">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'content:post_list' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="?category={{ post.category.slug }}">{{ post.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ post.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h1>{{ post.title }}</h1>
+            <p class="text-muted mb-0">
+                Автор: {{ post.author.phone_number }} |
+                Категория: {{ post.category.name }} |
+                {{ post.created_at|date:"d.m.Y H:i" }}
+                {% if post.post_type == 'paid' %}
+                    <span class="badge bg-warning text-dark ms-2">Платный контент</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="card-body">
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="img-fluid mb-4" alt="{{ post.title }}">
+            {% endif %}
+            
+            <div class="post-content">
+                {{ post.content|linebreaks }}
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            {% if user == post.author or user.is_staff %}
+                <a href="{% url 'content:post_update' post.pk %}" class="btn btn-warning">
+                    Редактировать
+                </a>
+                <a href="{% url 'content:post_delete' post.pk %}" class="btn btn-danger">
+                    Удалить
+                </a>
+            {% endif %}
+            
+            <a href="{% url 'content:post_list' %}" class="btn btn-secondary float-end">
+                Назад к списку
+            </a>
+        </div>
+    </div>
+</article>
+{% endblock %}

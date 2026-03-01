@@ -1,24 +1,28 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.core.validators import RegexValidator
+from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
     """Менеджер пользователей для работы без username"""
 
-    def create_user(self, phone_number, password=None, **extra_fields):
+    def create_user(self, phone_number, email, password=None, **extra_fields):
         """
         Создает и сохраняет обычного пользователя
         """
         if not phone_number:
             raise ValueError('Номер телефона обязателен')
+        if not email:
+            raise ValueError('Email обязателен')
 
-        user = self.model(phone_number=phone_number, **extra_fields)
+        email = self.normalize_email(email)
+        user = self.model(phone_number=phone_number, email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone_number, password=None, **extra_fields):
+    def create_superuser(self, phone_number, email, password=None, **extra_fields):
         """
         Создает и сохраняет суперпользователя
         """
@@ -31,7 +35,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Суперпользователь должен иметь is_superuser=True')
 
-        return self.create_user(phone_number, password, **extra_fields)
+        return self.create_user(phone_number, email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -50,8 +54,8 @@ class User(AbstractUser):
         )]
     )
 
-    # Email теперь необязательный
-    email = models.EmailField(unique=True, blank=True, null=True)
+    # Email теперь обязательный и уникальный
+    email = models.EmailField(unique=True)
 
     # Поля для подписки
     is_subscribed = models.BooleanField(default=False)
@@ -62,7 +66,7 @@ class User(AbstractUser):
 
     # Говорим Django, что поле для входа - номер телефона
     USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = []  # Больше не требуется email при создании суперпользователя
+    REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return self.phone_number
+        return f"{self.phone_number} - {self.email}"
