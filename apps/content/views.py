@@ -41,11 +41,7 @@ class PostDetailView(DetailView):
             if not request.user.is_authenticated:
                 return redirect(f"{reverse_lazy('accounts:login')}?next={request.path}")
             else:
-                # ВРЕМЕННО: вместо редиректа на payments показываем сообщение
-                # Позже здесь будет редирект на payments:subscription
-                from django.http import HttpResponse
-                return HttpResponse(
-                    "Для просмотра платного контента нужна подписка. Скоро здесь будет страница оплаты!")
+                return redirect('payments:subscription')
 
         return super().get(request, *args, **kwargs)
 

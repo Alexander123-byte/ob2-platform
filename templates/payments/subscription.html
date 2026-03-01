@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Оформление подписки{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="text-center mb-0">Оформление подписки</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h4>Месячная подписка</h4>
+                    <p class="display-4">1 000 ₽</p>
+                    <p class="text-muted">
+                        ✓ Доступ ко всем платным публикациям<br>
+                        ✓ Без ограничений<br>
+                        ✓ Поддержка авторов
+                    </p>
+                </div>
+                
+                {% if user.is_subscribed %}
+                    <div class="alert alert-success">
+                        ✓ У вас уже есть активная подписка!
+                        {% if user.subscription_expiry %}
+                            <br>Действует до: {{ user.subscription_expiry|date:"d.m.Y" }}
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'content:post_list' %}" class="btn btn-primary w-100">
+                        Перейти к публикациям
+                    </a>
+                {% else %}
+                    <button 
+                        class="btn btn-primary btn-lg w-100"
+                        onclick="makePayment()"
+                    >
+                        💳 Оплатить подписку
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function makePayment() {
+    // Показываем индикатор загрузки
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '⏳ Обработка...';
+    button.disabled = true;
+    
+    fetch("{% url 'payments:create_payment' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Перенаправляем на страницу оплаты ЮKassa
+            window.location.href = data.payment_url;
+        } else {
+            alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при соединении с сервером');
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Результат оплаты{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if activated %}
+                    <div class="mb-4">
+                        <span style="font-size: 5rem; color: green;">✓</span>
+                    </div>
+                    <h2 class="text-success mb-3">Оплата прошла успешно!</h2>
+                    <p class="lead mb-4">
+                        Спасибо за оформление подписки. Теперь вам доступны все платные публикации.
+                    </p>
+                    <div class="alert alert-info">
+                        <strong>Подписка активирована до:</strong> {{ user.subscription_expiry|date:"d.m.Y" }}
+                    </div>
+                    <a href="{% url 'content:post_list' %}" class="btn btn-primary btn-lg mt-3">
+                        Перейти к публикациям
+                    </a>
+                    
+                {% elif pending %}
+                    <div class="mb-4">
+                        <span style="font-size: 5rem; color: orange;">⏳</span>
+                    </div>
+                    <h2 class="text-warning mb-3">Платёж обрабатывается</h2>
+                    <p class="lead mb-4">
+                        Ваш платёж принят и обрабатывается. Обычно это занимает несколько секунд.
+                    </p>
+                    <p class="text-muted mb-4">
+                        Страница обновится автоматически после подтверждения платежа.
+                    </p>
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    
+                {% else %}
+                    <div class="mb-4">
+                        <span style="font-size: 5rem; color: red;">✗</span>
+                    </div>
+                    <h2 class="text-danger mb-3">Ошибка при оплате</h2>
+                    <p class="lead mb-4">
+                        Не удалось подтвердить платёж. Пожалуйста, попробуйте снова.
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'payments:subscription' %}" class="btn btn-primary">
+                            Попробовать снова
+                        </a>
+                        <a href="{% url 'content:post_list' %}" class="btn btn-secondary">
+                            Вернуться на главную
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if pending %}
+<script>
+    // Автоматически проверяем статус каждые 3 секунды
+    setTimeout(function() {
+        window.location.reload();
+    }, 3000);
+</script>
+{% endif %}
+{% endblock %}

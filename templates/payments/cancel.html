@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Оплата отменена{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <span style="font-size: 5rem; color: orange;">⚠</span>
+                </div>
+                <h2 class="text-warning mb-3">Оплата отменена</h2>
+                <p class="lead mb-4">
+                    Вы отменили процесс оплаты. Подписка не была оформлена.
+                </p>
+                <p class="text-muted mb-4">
+                    Если у вас возникли вопросы или проблемы с оплатой, 
+                    пожалуйста, попробуйте снова или свяжитесь с поддержкой.
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'payments:subscription' %}" class="btn btn-primary">
+                        Попробовать снова
+                    </a>
+                    <a href="{% url 'content:post_list' %}" class="btn btn-secondary">
+                        Вернуться на главную
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
