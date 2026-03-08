@@ -1,7 +1,7 @@
+from django.urls import reverse
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.core.validators import RegexValidator
-from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
@@ -41,32 +41,31 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     """Custom user model with phone number authentication"""
 
-    # Убираем поле username
     username = None
 
-    # Добавляем номер телефона как основное поле
     phone_number = models.CharField(
-        max_length=15,
+        max_length=18,
         unique=True,
         validators=[RegexValidator(
-            regex=r'^\+?1?\d{9,15}$',
-            message="Номер телефона должен быть в формате: '+79991234567'"
+            regex=r'^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$',
+            message="Номер телефона должен быть в формате: +7(999)-999-99-99"
         )]
     )
 
-    # Email теперь обязательный и уникальный
     email = models.EmailField(unique=True)
 
-    # Поля для подписки
     is_subscribed = models.BooleanField(default=False)
     subscription_expiry = models.DateTimeField(null=True, blank=True)
+    email_verified = models.BooleanField(default=False)
 
-    # Привязываем менеджер
     objects = UserManager()
 
-    # Говорим Django, что поле для входа - номер телефона
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['email']
+
+    def get_absolute_url(self):
+        """Возвращает URL профиля пользователя"""
+        return reverse('content:post_list')
 
     def __str__(self):
         return f"{self.phone_number} - {self.email}"

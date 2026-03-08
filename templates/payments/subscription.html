@@ -1,44 +1,112 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}Оформление подписки{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h3 class="text-center mb-0">Оформление подписки</h3>
-            </div>
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <h4>Месячная подписка</h4>
-                    <p class="display-4">1 000 ₽</p>
-                    <p class="text-muted">
-                        ✓ Доступ ко всем платным публикациям<br>
-                        ✓ Без ограничений<br>
-                        ✓ Поддержка авторов
-                    </p>
-                </div>
-                
-                {% if user.is_subscribed %}
-                    <div class="alert alert-success">
-                        ✓ У вас уже есть активная подписка!
-                        {% if user.subscription_expiry %}
-                            <br>Действует до: {{ user.subscription_expiry|date:"d.m.Y" }}
+    <div class="col-md-8">
+        <div class="text-center mb-5">
+            <h1 class="display-4">
+                <i class="fas fa-crown text-warning me-2"></i>PRO подписка
+            </h1>
+            <p class="lead text-muted">
+                Откройте доступ ко всем платным материалам
+            </p>
+        </div>
+        
+        <div class="row">
+            <!-- Карточка бесплатного тарифа -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="display-1 text-success mb-3">
+                            <i class="fas fa-lock-open"></i>
+                        </div>
+                        <h3 class="card-title">Бесплатный</h3>
+                        <div class="display-4 mb-3">0 ₽</div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Доступ к бесплатным постам</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Создание своих постов</li>
+                            <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Платные материалы</li>
+                            <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Поддержка авторов</li>
+                        </ul>
+                        {% if user.is_authenticated and not user.is_subscribed %}
+                            <a href="{% url 'content:post_list' %}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-arrow-right me-2"></i>Начать бесплатно
+                            </a>
                         {% endif %}
                     </div>
-                    <a href="{% url 'content:post_list' %}" class="btn btn-primary w-100">
-                        Перейти к публикациям
-                    </a>
-                {% else %}
-                    <button 
-                        class="btn btn-primary btn-lg w-100"
-                        onclick="makePayment()"
-                    >
-                        💳 Оплатить подписку
-                    </button>
-                {% endif %}
+                </div>
+            </div>
+            
+            <!-- Карточка PRO тарифа -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-header bg-warning text-dark text-center py-3">
+                        <h5 class="mb-0">🔥 Самое популярное</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="display-1 text-warning mb-3">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h3 class="card-title">PRO доступ</h3>
+                        <div class="display-4 mb-3">1 000 ₽</div>
+                        <div class="text-muted mb-3">/месяц</div>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Всё из бесплатного тарифа</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Все платные материалы</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Доступ к эксклюзивам</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Поддержка авторов</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Без рекламы</li>
+                        </ul>
+                        
+                        {% if user.is_authenticated %}
+                            {% if user.is_subscribed %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Подписка активна до {{ user.subscription_expiry|date:"d.m.Y" }}
+                                </div>
+                                <a href="{% url 'content:post_list' %}" class="btn btn-success w-100">
+                                    <i class="fas fa-arrow-right me-2"></i>Перейти к контенту
+                                </a>
+                            {% else %}
+                                <button class="btn btn-warning btn-lg w-100" onclick="makePayment()">
+                                    <i class="fas fa-crown me-2"></i>Оформить подписку
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}?next={% url 'payments:subscription' %}" 
+                               class="btn btn-warning w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i>Войти для оформления
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Преимущества подписки -->
+        <div class="row mt-5">
+            <div class="col-md-4 text-center mb-4">
+                <div class="display-6 text-primary mb-3">
+                    <i class="fas fa-infinity"></i>
+                </div>
+                <h5>Без ограничений</h5>
+                <p class="text-muted small">Читайте сколько хотите</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="display-6 text-primary mb-3">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h5>Эксклюзивный контент</h5>
+                <p class="text-muted small">Только для подписчиков</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="display-6 text-primary mb-3">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h5>Поддержка авторов</h5>
+                <p class="text-muted small">Помогите создавать контент</p>
             </div>
         </div>
     </div>
@@ -46,9 +114,9 @@
 
 <script>
 function makePayment() {
-    const button = event.target;
+    const button = event.target.closest('button');
     const originalText = button.innerHTML;
-    button.innerHTML = '⏳ Обработка...';
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
     button.disabled = true;
     
     fetch("{% url 'payments:create_payment' %}", {
