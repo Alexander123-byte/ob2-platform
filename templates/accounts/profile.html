@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load phone_mask %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-user-circle me-2"></i>Профиль пользователя
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-4">
+                        <div class="display-1 text-primary">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+                        <p class="text-muted">
+                            {% if user.is_subscribed %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-crown me-1"></i>PRO подписка
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-user me-1"></i>Бесплатный аккаунт
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Основная информация
+                        </h5>
+                        
+                        <table class="table table-borderless">
+                            <tr>
+                                <th style="width: 200px;">Имя:</th>
+                                <td>{{ user.first_name|default:"Не указано" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Фамилия:</th>
+                                <td>{{ user.last_name|default:"Не указано" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Номер телефона:</th>
+                                <td>{{ user.phone_number|default:"Не указан" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>
+                                    {{ user.email }}
+                                    {% if user.email_verified %}
+                                        <span class="badge bg-success ms-2">
+                                            <i class="fas fa-check-circle me-1"></i>Подтверждён
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning ms-2">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Не подтверждён
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Дата регистрации:</th>
+                                <td>{{ user.date_joined|date:"d.m.Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Последний вход:</th>
+                                <td>
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"d.m.Y H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">Первый вход</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        {% if user.is_subscribed and user.subscription_expiry %}
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Подписка активна до {{ user.subscription_expiry|date:"d.m.Y" }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-4">
+                            <a href="{% url 'accounts:settings' %}" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i>Редактировать профиль
+                            </a>
+                            <a href="{% url 'content:post_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>На главную
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Статистика пользователя -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Статистика</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="display-4">{{ user.posts.count }}</div>
+                        <div class="text-muted">Публикаций</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="display-4">
+                            {% with last_post=user.posts.first %}
+                                {{ last_post.created_at|date:"d.m.Y"|default:"—" }}
+                            {% endwith %}
+                        </div>
+                        <div class="text-muted">Последняя публикация</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="display-4">{{ user.payments.count }}</div>
+                        <div class="text-muted">Платежей</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

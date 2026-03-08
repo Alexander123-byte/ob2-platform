@@ -1,3 +1,4 @@
+{% load phone_mask %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -115,15 +116,22 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user-circle me-1"></i>
-                                {% load phone_mask %}
-                                {{ user.phone_number|format_phone|truncatechars:15 }}
+                                {% if user.first_name %}
+                                    {{ user.first_name }} {{ user.last_name|first }}.
+                                {% else %}
+                                    {{ user.phone_number|format_phone }}
+                                {% endif %}
                                 {% if user.is_subscribed %}
                                     <span class="badge bg-warning text-dark ms-1">PRO</span>
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Профиль</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Настройки</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                    <i class="fas fa-user me-2"></i>Профиль
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">
+                                    <i class="fas fa-cog me-2"></i>Настройки
+                                </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
                                     <i class="fas fa-sign-out-alt me-2"></i>Выйти
