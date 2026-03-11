@@ -16,19 +16,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* Общие стили */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8f9fa;
         }
         
+        /* Навигационная панель */
         .navbar {
             box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
+        .navbar-brand {
+            font-weight: 700;
+        }
+        
+        /* Карточки */
         .card {
             border: none;
             box-shadow: 0 0 20px rgba(0,0,0,0.08);
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
         }
         
         .card:hover {
@@ -36,6 +45,7 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
         }
         
+        /* Кнопки */
         .btn {
             border-radius: 8px;
             padding: 10px 20px;
@@ -52,17 +62,20 @@
             transform: scale(1.02);
         }
         
+        /* Бейджи */
         .badge {
             padding: 6px 12px;
             border-radius: 20px;
             font-weight: 500;
         }
         
+        /* Контент поста */
         .post-content {
             line-height: 1.8;
             color: #2d3748;
         }
         
+        /* Формы */
         .form-control {
             border-radius: 8px;
             border: 1px solid #e2e8f0;
@@ -74,23 +87,163 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
+        /* Алерты */
         .alert {
             border-radius: 8px;
             border: none;
         }
         
+        /* Футер */
         footer {
             margin-top: 50px;
             padding: 20px 0;
             background: white;
             box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
         }
+        
+        /* Стили для карточек постов */
+        .post-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Контейнер для изображения в списке */
+        .post-image-wrapper {
+            height: 200px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        /* Само изображение в списке */
+        .post-image {
+            max-height: 180px;
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .post-card:hover .post-image {
+            transform: scale(1.05);
+        }
+        
+        /* Плейсхолдер для изображения */
+        .post-image-placeholder {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        /* Изображение в детальном просмотре */
+        .post-detail-image {
+            max-height: 500px;
+            width: auto;
+            max-width: 100%;
+            margin: 0 auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Адаптивность для мобильных */
+        @media (max-width: 768px) {
+            .post-image-wrapper,
+            .post-image-placeholder {
+                height: 150px;
+            }
+            
+            .post-image {
+                max-height: 130px;
+            }
+            
+            .post-detail-image {
+                max-height: 300px;
+            }
+        }
+        
+        /* Выпадающее меню пользователя */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        
+        .dropdown-item {
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: #fff5f5;
+        }
+        
+        /* Хлебные крошки */
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        .breadcrumb-item a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Пагинация */
+        .pagination .page-link {
+            border: none;
+            color: #667eea;
+            margin: 0 3px;
+            border-radius: 8px;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            animation: fadeIn 0.5s ease-out;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <!-- Навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{% url 'content:post_list' %}">
                 <i class="fas fa-bolt me-2"></i>OB2 Platform
@@ -155,6 +308,7 @@
         </div>
     </nav>
 
+    <!-- Основной контент -->
     <main class="container mt-4">
         {% if messages %}
             {% for message in messages %}
@@ -169,6 +323,7 @@
         {% endblock %}
     </main>
 
+    <!-- Футер -->
     <footer>
         <div class="container">
             <div class="row">

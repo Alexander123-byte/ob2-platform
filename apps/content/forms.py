@@ -18,12 +18,18 @@ class PostForm(forms.ModelForm):
             }),
             'post_type': forms.Select(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
         }
         labels = {
             'title': 'Заголовок',
             'content': 'Содержание',
             'post_type': 'Тип поста',
             'category': 'Категория',
-            'image': 'Изображение',
+            'image': 'Изображение (будет автоматически уменьшено)',
+        }
+        help_texts = {
+            'image': 'Максимальный размер после обработки: 1200х800 пикселей',
         }

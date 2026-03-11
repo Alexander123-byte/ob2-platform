@@ -1,5 +1,8 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
+from PIL import Image
+import os
 
 
 class Category(models.Model):
@@ -65,5 +68,49 @@ class Post(models.Model):
         """Проверяет, может ли пользователь просматривать этот пост"""
         if self.post_type == 'free':
             return True
-        # Если пост платный, проверяем подписку
         return user.is_authenticated and user.is_subscribed
+
+    def save(self, *args, **kwargs):
+        """Переопределяем save для обработки изображения"""
+        super().save(*args, **kwargs)
+
+        if self.image:
+            self.resize_image()
+
+    def resize_image(self):
+        """Изменяет размер изображения"""
+        try:
+            img_path = self.image.path
+            img = Image.open(img_path)
+
+            width, height = img.size
+
+            max_width = 1200
+            max_height = 800
+
+            if width > max_width or height > max_height:
+                if width > height:
+                    new_width = max_width
+                    new_height = int(height * (max_width / width))
+                else:
+                    new_height = max_height
+                    new_width = int(width + (max_height / height))
+
+                img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+                img.save(img_path, quality=85, optimize=True)
+
+        except Exception as e:
+            print(f"Ошибка при изменении размера изображения: {e}")
+
+    def get_image_url(self):
+        """Возвращает URL изображения или заглушку"""
+        if self.image:
+            return self.image.url
+        return '/static/images/no-image.jpg'
+
+    def get_thumbnail_url(self):
+        """Возвращает URL миниатюры"""
+        if self.image:
+            return self.image.url
+        return '/static/images/no-image.jpg'

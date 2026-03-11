@@ -69,12 +69,16 @@
         <div class="row">
             {% for post in posts %}
                 <div class="col-md-6 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 post-card">
                         {% if post.image %}
-                            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+                            <div class="post-image-wrapper">
+                                <img src="{{ post.image.url }}" 
+                                     class="post-image" 
+                                     alt="{{ post.title }}">
+                            </div>
                         {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="fas fa-image fa-4x text-muted"></i>
+                            <div class="post-image-placeholder">
+                                <i class="fas fa-image fa-4x text-white opacity-50"></i>
                             </div>
                         {% endif %}
                         
@@ -97,7 +101,7 @@
                             </div>
                             
                             <p class="card-text text-muted small">
-                                <i class="fas fa-user me-1"></i>{{ post.author.phone_number|format_phone }}<br>
+                                <i class="fas fa-user me-1"></i>{{ post.author.get_full_name|default:post.author.phone_number }}<br>
                                 <i class="fas fa-folder me-1"></i>{{ post.category.name }}<br>
                                 <i class="fas fa-calendar me-1"></i>{{ post.created_at|date:"d.m.Y" }}
                             </p>

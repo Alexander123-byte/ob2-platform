@@ -27,7 +27,12 @@
         </div>
         
         {% if post.image %}
-            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}" style="max-height: 400px; object-fit: cover;">
+            <div class="text-center p-3 bg-light">
+                <img src="{{ post.image.url }}" 
+                     class="img-fluid rounded" 
+                     alt="{{ post.title }}"
+                     style="max-height: 500px; width: auto; max-width: 100%; object-fit: contain;">
+            </div>
         {% endif %}
         
         <div class="card-body">
@@ -40,7 +45,7 @@
                     </div>
                 </div>
                 <div class="flex-grow-1 ms-3">
-                    <h6 class="mb-0">{{ post.author.phone_number|format_phone }}</h6>
+                    <h6 class="mb-0">{{ post.author.get_full_name|default:post.author.phone_number }}</h6>
                     <small class="text-muted">
                         <i class="fas fa-calendar me-1"></i>{{ post.created_at|date:"d.m.Y H:i" }}
                         <i class="fas fa-folder ms-3 me-1"></i>{{ post.category.name }}
@@ -87,7 +92,7 @@
     <!-- Комментарии (заглушка) -->
     <div class="card mt-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Комментарии (3)</h5>
+            <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Комментарии (0)</h5>
         </div>
         <div class="card-body">
             <div class="text-center text-muted py-3">
