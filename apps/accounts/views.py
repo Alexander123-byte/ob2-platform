@@ -1,4 +1,5 @@
 from django.urls import reverse_lazy
+from datetime import datetime, timedelta
 from django.contrib.auth.views import LoginView
 from django.views.generic import CreateView, UpdateView, DetailView
 from django.shortcuts import redirect
@@ -6,6 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
 from .forms import UserRegistrationForm, PhoneNumberLoginForm, UserSettingsForm
 from .models import User
 from .utils import send_verification_email
@@ -101,3 +103,33 @@ class SettingsView(LoginRequiredMixin, UpdateView):
     def form_invalid(self, form):
         messages.error(self.request, 'Пожалуйста, исправьте ошибки в форме.')
         return super().form_valid(form)
+
+
+class ResendVerificationEmailView(LoginRequiredMixin, View):
+    """Повторная отправка письма с подтверждением email"""
+
+    def get(self, request):
+        user = request.user
+
+        if user.email_verified:
+            messages.info(request, 'Ваш email уже подтверждён.')
+            return redirect('accounts:settings')
+
+        last_sent = request.session.get('last_verification_email_sent')
+        if last_sent:
+            last_sent_time = datetime.fromisoformat(last_sent)
+            if datetime.now() - last_sent_time < timedelta(minutes=2):
+                messages.warning(request, 'Письмо уже было отправлено недавно. Подождите 2 минуты.')
+                return redirect('accounts:settings')
+
+        try:
+            success = send_verification_email(user, request)
+            if success:
+                request.session['last_verification_email_sent'] = datetime.now().isoformat()
+                messages.success(request, 'Письмо с подтверждением отправлено повторно! Проверьте вашу почту.')
+            else:
+                messages.error(request, 'Не удалось отправить письмо. Попробуйте позже.')
+        except Exception as e:
+            messages.error(request, f'Ошибка при отправке письма: {e}')
+
+        return redirect('accounts:settings')

@@ -75,11 +75,27 @@
                                 {% endfor %}
                             </div>
                         {% endif %}
-                        {% if not user.email_verified %}
-                            <small class="text-warning">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Email не подтверждён. 
-                                <a href="#" class="alert-link">Отправить письмо повторно</a>
+                        
+                        <!-- Статус подтверждения email -->
+                        {% if user.email_verified %}
+                            <div class="mt-2">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Email подтверждён
+                                </span>
+                            </div>
+                        {% else %}
+                            <div class="mt-2">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Email не подтверждён
+                                </span>
+                                <a href="{% url 'accounts:resend_verification' %}" 
+                                   class="btn btn-sm btn-outline-primary ms-2"
+                                   onclick="return confirm('Отправить письмо с подтверждением повторно?');">
+                                    <i class="fas fa-envelope me-1"></i>Отправить письмо повторно
+                                </a>
+                            </div>
+                            <small class="text-muted d-block mt-1">
+                                После смены email необходимо подтвердить новый адрес.
                             </small>
                         {% endif %}
                     </div>
@@ -157,6 +173,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     e.target.value = formatted;
                 }
+            }
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const resendLink = document.querySelector('a[href*="resend_verification"]');
+    
+    if (resendLink) {
+        resendLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (confirm('Отправить письмо с подтверждением на адрес {{ user.email }}?')) {
+                window.location.href = this.href;
             }
         });
     }

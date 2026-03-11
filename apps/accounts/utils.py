@@ -9,15 +9,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def send_verification_email(user, request):
+def send_verification_email(user, request, new_email=None):
     """Отправляет письмо с подтверждением email"""
 
     try:
-        # Создаём токен для подтверждения
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
 
-        # Ссылка для подтверждения
+        email_to = new_email if new_email else user.email
+
         verification_url = request.build_absolute_uri(
             reverse('accounts:verify_email', kwargs={
                 'uidb64': uid,
@@ -28,23 +28,22 @@ def send_verification_email(user, request):
         subject = 'Подтверждение email на OB2 Platform'
 
         message = f'''
-        Здравствуйте, {user.phone_number}!
+        Здравствуйте, {user.first_name} {user.last_name}!
 
         Для подтверждения вашего email перейдите по ссылке:
         {verification_url}
 
-        Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо.
+        Если вы не запрашивали подтверждение, просто проигнорируйте это письмо.
 
         С уважением,
         Команда OB2 Platform
         '''
 
-        # Отправляем письмо
         send_mail(
             subject,
             message,
             settings.DEFAULT_FROM_EMAIL,
-            [user.email],
+            [email_to],
             fail_silently=False,
         )
 
